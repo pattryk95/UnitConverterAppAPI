@@ -7,10 +7,9 @@ using UnitConverterAppAPI.Services;
 namespace UnitConverterAppAPI.Controllers
 {
     [Route("api/unit")]
+    [ApiController] // automatically invoke ModelState.IsValid
     public class UnitController : ControllerBase
     {
-        private readonly UnitConverterDbContext _dbContext;
-        private readonly IMapper _mapper;
         private readonly IUnitService _unitService;
 
         public UnitController(IUnitService unitService)
@@ -31,19 +30,12 @@ namespace UnitConverterAppAPI.Controllers
         {
             var unitDto = _unitService.GetById(id);
 
-            if (unitDto == null) return NotFound();
-
             return Ok(unitDto);
         }
 
         [HttpPost]
         public ActionResult AddNewUnit([FromBody] CreateUnitDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var id = _unitService.Create(dto);
 
             return Created($"/api/unit/{id}", null);
@@ -52,28 +44,13 @@ namespace UnitConverterAppAPI.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteUnit([FromRoute] int id)
         {
-           var isDeleted = _unitService.Delete(id);
-            if (isDeleted)
-            {
-                return NoContent();
-            }
-
             return NotFound();
         }
 
         [HttpPut("{id}")]
         public ActionResult EditUnit([FromRoute] int id, [FromBody] UpdateUnitDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var isEdited = _unitService.Edit(id, dto);
-
-            if (!isEdited)
-            {
-                return NotFound();
-            }
+           _unitService.Edit(id, dto);
             return Ok();
             
         }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using UnitConverterAppAPI.Entities;
+using UnitConverterAppAPI.Exceptions;
 using UnitConverterAppAPI.Models;
 
 namespace UnitConverterAppAPI.Services
@@ -8,17 +9,22 @@ namespace UnitConverterAppAPI.Services
     {
         private readonly UnitConverterDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<UnitService> _logger;
 
-        public UnitService(UnitConverterDbContext dbContext, IMapper mapper)
+        public UnitService(UnitConverterDbContext dbContext, IMapper mapper, ILogger<UnitService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
         public UnitDto GetById(int id)
         {
             var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
 
-            if (unit is null) return null;
+            if (unit is null)
+            {
+                throw new NotFoundException("Restaurant not found");
+            }
 
             var result = _mapper.Map<UnitDto>(unit);
             return result;
@@ -41,30 +47,32 @@ namespace UnitConverterAppAPI.Services
             return unit.Id;
         }
 
-        public bool Delete(int id)
+        public void Delete(int id)
         {
+            _logger.LogError($"Unit with id: {id} DELETE action invoked");
             var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
 
-            if (unit is null) return false;
+            if (unit is null)
+            {
+                throw new NotFoundException("Unit not found");
+            }
 
             _dbContext.Units.Remove(unit);
             _dbContext.SaveChanges();
-            return true;
-
-
         }
 
-        public bool Edit(int id, UpdateUnitDto dto)
+        public void Edit(int id, UpdateUnitDto dto)
         {
             var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
-            if (unit is null) return false;
+            if (unit is null) 
+            {
+                throw new NotFoundException("Unit not found");
+            }
 
             unit.Name = dto.Name;
             unit.Factor = dto.Factor;
 
             _dbContext.SaveChanges();
-
-            return true;
 
 
         }

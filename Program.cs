@@ -1,3 +1,5 @@
+using NLog.Web;
+
 namespace UnitConverterAppAPI
 {
     public class Program
@@ -12,6 +14,7 @@ namespace UnitConverterAppAPI
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .UseNLog();
     }
 }

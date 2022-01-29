@@ -1,6 +1,7 @@
 using UnitConverterAppAPI.Entities;
 using AutoMapper;
 using UnitConverterAppAPI.Services;
+using UnitConverterAppAPI.Middleware;
 
 namespace UnitConverterAppAPI
 {
@@ -21,16 +22,20 @@ namespace UnitConverterAppAPI
             services.AddScoped<UnitSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUnitService, UnitService>();
+            services.AddScoped<ErrorHandlingMiddleware>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UnitSeeder seeder)
         {
+
             seeder.Seed();
-            if (env.IsDevelopment())
+           /* if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+           */
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 
