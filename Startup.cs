@@ -23,6 +23,8 @@ namespace UnitConverterAppAPI
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUnitService, UnitService>();
             services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddScoped<RequestTimeMiddleware>();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,8 +38,15 @@ namespace UnitConverterAppAPI
             }
            */
             app.UseMiddleware<ErrorHandlingMiddleware>();
-
+            app.UseMiddleware<RequestTimeMiddleware>();
             app.UseHttpsRedirection();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c => 
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "UnitConverterAppAPI");
+            });
 
             app.UseRouting();
 
