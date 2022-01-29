@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UnitConverterAppAPI.Entities;
 using UnitConverterAppAPI.Models;
+using UnitConverterAppAPI.Services;
 
 namespace UnitConverterAppAPI.Controllers
 {
@@ -10,18 +11,17 @@ namespace UnitConverterAppAPI.Controllers
     {
         private readonly UnitConverterDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IUnitService _unitService;
 
-        public UnitController(UnitConverterDbContext _dbContext, IMapper mapper)
+        public UnitController(IUnitService unitService)
         {
-            this._dbContext = _dbContext;
-            _mapper = mapper;
+            _unitService = unitService;
         }
+
         [HttpGet]
         public ActionResult<IEnumerable<UnitDto>> GetAll()
         {
-            var units = _dbContext.Units.ToList();
-
-            var unitsDtos = _mapper.Map<List<UnitDto>>(units);
+            var unitsDtos = _unitService.GetAll();
 
             return Ok(unitsDtos);
         }
@@ -29,24 +29,53 @@ namespace UnitConverterAppAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult<Unit> Get([FromRoute] int id)
         {
-            var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
+            var unitDto = _unitService.GetById(id);
 
-            if (unit is null)
-            {
-                return NotFound();
-            }
-            var unitDto = _mapper.Map<UnitDto>(unit);
+            if (unitDto == null) return NotFound();
+
             return Ok(unitDto);
         }
 
         [HttpPost]
         public ActionResult AddNewUnit([FromBody] CreateUnitDto dto)
         {
-            var unit = _mapper.Map<Unit>(dto);
-            _dbContext.Units.Add(unit);
-            _dbContext.SaveChanges();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return Created($"/api/unit/{unit.Id}", null);
+            var id = _unitService.Create(dto);
+
+            return Created($"/api/unit/{id}", null);
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult DeleteUnit([FromRoute] int id)
+        {
+           var isDeleted = _unitService.Delete(id);
+            if (isDeleted)
+            {
+                return NoContent();
+            }
+
+            return NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult EditUnit([FromRoute] int id, [FromBody] UpdateUnitDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var isEdited = _unitService.Edit(id, dto);
+
+            if (!isEdited)
+            {
+                return NotFound();
+            }
+            return Ok();
+            
         }
     }
 }

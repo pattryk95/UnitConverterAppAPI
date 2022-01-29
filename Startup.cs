@@ -1,5 +1,6 @@
 using UnitConverterAppAPI.Entities;
 using AutoMapper;
+using UnitConverterAppAPI.Services;
 
 namespace UnitConverterAppAPI
 {
@@ -19,6 +20,7 @@ namespace UnitConverterAppAPI
             services.AddDbContext<UnitConverterDbContext>();
             services.AddScoped<UnitSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
+            services.AddScoped<IUnitService, UnitService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

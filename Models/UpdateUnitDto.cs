@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UnitConverterAppAPI.Models
 {
-    public class CreateUnitDto
+    public class UpdateUnitDto
     {
         [Required]
         [MaxLength(25)]
