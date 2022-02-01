@@ -10,6 +10,9 @@ namespace UnitConverterAppAPI
         {
             CreateMap<Unit, UnitDto>().ReverseMap();
             CreateMap<CreateUnitDto, Unit>().ReverseMap();
+
+            CreateMap<CreateConversionDto, Conversion>().ReverseMap();
+            CreateMap<ConversionDto, Conversion>().ReverseMap();
         }
     }
 }

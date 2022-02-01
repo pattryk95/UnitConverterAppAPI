@@ -22,6 +22,7 @@ namespace UnitConverterAppAPI
             services.AddScoped<UnitSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUnitService, UnitService>();
+            services.AddScoped<IConversionService, ConversionService>();
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<RequestTimeMiddleware>();
             services.AddSwaggerGen();

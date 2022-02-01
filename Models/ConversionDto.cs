@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using UnitConverterAppAPI.Entities;
 
-namespace UnitConverterAppAPI.Entities
+namespace UnitConverterAppAPI.Models
 {
-    public class Conversion
+    public class ConversionDto
     {
         public int Id { get; set; }
         [Required]
-        [Precision(38,19)]
+        [Precision(38, 19)]
         public decimal ConvertedValue { get; set; }
         [Required]
         [Precision(38, 19)]
@@ -25,7 +26,5 @@ namespace UnitConverterAppAPI.Entities
         [Required]
         public int TargetUnitId { get; set; }
         public virtual Unit TargetUnit { get; set; }
-
-        
     }
 }

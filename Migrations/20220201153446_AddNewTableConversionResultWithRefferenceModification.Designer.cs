@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UnitConverterAppAPI.Entities;
 
@@ -11,9 +12,10 @@ using UnitConverterAppAPI.Entities;
 namespace UnitConverterAppAPI.Migrations
 {
     [DbContext(typeof(UnitConverterDbContext))]
-    partial class UnitConverterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220201153446_AddNewTableConversionResultWithRefferenceModification")]
+    partial class AddNewTableConversionResultWithRefferenceModification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,10 +31,6 @@ namespace UnitConverterAppAPI.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<decimal>("ConversionResult")
-                        .HasPrecision(38, 19)
-                        .HasColumnType("decimal(38,19)");
 
                     b.Property<decimal>("ConvertedValue")
                         .HasPrecision(38, 19)
@@ -54,6 +52,29 @@ namespace UnitConverterAppAPI.Migrations
                     b.HasIndex("TargetUnitId");
 
                     b.ToTable("Conversions");
+                });
+
+            modelBuilder.Entity("UnitConverterAppAPI.Entities.ConversionResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ConversionId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("FinalValue")
+                        .HasPrecision(38, 19)
+                        .HasColumnType("decimal(38,19)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversionId")
+                        .IsUnique();
+
+                    b.ToTable("ConversionResults");
                 });
 
             modelBuilder.Entity("UnitConverterAppAPI.Entities.Unit", b =>
@@ -95,6 +116,23 @@ namespace UnitConverterAppAPI.Migrations
                     b.Navigation("OriginalUnit");
 
                     b.Navigation("TargetUnit");
+                });
+
+            modelBuilder.Entity("UnitConverterAppAPI.Entities.ConversionResult", b =>
+                {
+                    b.HasOne("UnitConverterAppAPI.Entities.Conversion", "Conversion")
+                        .WithOne("ConversionResult")
+                        .HasForeignKey("UnitConverterAppAPI.Entities.ConversionResult", "ConversionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Conversion");
+                });
+
+            modelBuilder.Entity("UnitConverterAppAPI.Entities.Conversion", b =>
+                {
+                    b.Navigation("ConversionResult")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
