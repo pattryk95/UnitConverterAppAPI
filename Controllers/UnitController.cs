@@ -44,7 +44,8 @@ namespace UnitConverterAppAPI.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteUnit([FromRoute] int id)
         {
-            return NotFound();
+            _unitService.Delete(id);
+            return NoContent();
         }
 
         [HttpPut("{id}")]

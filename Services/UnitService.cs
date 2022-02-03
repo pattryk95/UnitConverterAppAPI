@@ -19,12 +19,7 @@ namespace UnitConverterAppAPI.Services
         }
         public UnitDto GetById(int id)
         {
-            var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
-
-            if (unit is null)
-            {
-                throw new NotFoundException("Restaurant not found");
-            }
+            var unit = GetUnit(id);
 
             var result = _mapper.Map<UnitDto>(unit);
             return result;
@@ -50,12 +45,7 @@ namespace UnitConverterAppAPI.Services
         public void Delete(int id)
         {
             _logger.LogError($"Unit with id: {id} DELETE action invoked");
-            var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
-
-            if (unit is null)
-            {
-                throw new NotFoundException("Unit not found");
-            }
+            var unit = GetUnit(id);
 
             _dbContext.Units.Remove(unit);
             _dbContext.SaveChanges();
@@ -63,11 +53,7 @@ namespace UnitConverterAppAPI.Services
 
         public void Edit(int id, UpdateUnitDto dto)
         {
-            var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
-            if (unit is null) 
-            {
-                throw new NotFoundException("Unit not found");
-            }
+            var unit = GetUnit(id);
 
             unit.Name = dto.Name;
             unit.Factor = dto.Factor;
@@ -75,6 +61,17 @@ namespace UnitConverterAppAPI.Services
             _dbContext.SaveChanges();
 
 
+        }
+
+        private Unit GetUnit (int id)
+        {
+            var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
+            if (unit is null)
+            {
+                throw new NotFoundException("Unit not found");
+            }
+
+            return unit;
         }
     }
 }

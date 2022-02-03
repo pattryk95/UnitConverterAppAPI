@@ -36,5 +36,12 @@ namespace UnitConverterAppAPI.Controllers
             return Ok(conversionDtos);
         }
 
+        [HttpDelete]
+        public ActionResult DeleteConversions()
+        {
+            _conversionService.RemoveAll();
+            return NoContent();
+        }
+
     }
 }
