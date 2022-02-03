@@ -9,6 +9,8 @@ namespace UnitConverterAppAPI.Entities
 
         public DbSet<Conversion> Conversions { get; set; }
         public DbSet<Unit> Units { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

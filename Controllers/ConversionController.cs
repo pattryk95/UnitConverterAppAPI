@@ -43,5 +43,11 @@ namespace UnitConverterAppAPI.Controllers
             return NoContent();
         }
 
+        public ActionResult DeleteUnit([FromRoute] int id)
+        {
+            _conversionService.DeleteConversion(id);
+            return NoContent();
+        }
+
     }
 }

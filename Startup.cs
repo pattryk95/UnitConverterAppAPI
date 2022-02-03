@@ -2,6 +2,13 @@ using UnitConverterAppAPI.Entities;
 using AutoMapper;
 using UnitConverterAppAPI.Services;
 using UnitConverterAppAPI.Middleware;
+using Microsoft.AspNetCore.Identity;
+using UnitConverterAppAPI.Models;
+using UnitConverterAppAPI.Models.Validators;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace UnitConverterAppAPI
 {
@@ -17,14 +24,38 @@ namespace UnitConverterAppAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            var authenticationSettings = new AuthenticationSettings();
+
+            Configuration.GetSection("Authentication").Bind(authenticationSettings);
+
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = "Bearer";
+                option.DefaultScheme = "Bearer";
+                option.DefaultChallengeScheme = "Bearer";
+            }).AddJwtBearer(cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = authenticationSettings.JwtIssuer,
+                    ValidAudience = authenticationSettings.JwtIssuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                };
+            });
+            
+            services.AddControllers().AddFluentValidation();
             services.AddDbContext<UnitConverterDbContext>();
             services.AddScoped<UnitSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUnitService, UnitService>();
             services.AddScoped<IConversionService, ConversionService>();
+            services.AddScoped<IAccountService,AccountService>();
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<RequestTimeMiddleware>();
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
             services.AddSwaggerGen();
         }
 
@@ -40,6 +71,7 @@ namespace UnitConverterAppAPI
            */
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseMiddleware<RequestTimeMiddleware>();
+            app.UseAuthentication();
             app.UseHttpsRedirection();
 
             app.UseSwagger();
