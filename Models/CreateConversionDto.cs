@@ -9,9 +9,7 @@ namespace UnitConverterAppAPI.Models
         [Required]
         [Precision(38, 19)]
         public decimal ConvertedValue { get; set; }
-        [Required]
-        [Precision(38, 19)]
-        public decimal ConversionResult { get; set; }
+        public decimal? ConversionResult { get; set; } = null;
         public DateTime DateOfConversion { get; set; } = DateTime.Now;
 
         [Required]

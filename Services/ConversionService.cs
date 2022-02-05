@@ -12,7 +12,7 @@ namespace UnitConverterAppAPI.Services
         private readonly IMapper _mapper;
         private readonly ILogger<ConversionService> _logger;
 
-        public ConversionService(UnitConverterDbContext context, IMapper mapper, ILogger<ConversionService>logger)
+        public ConversionService(UnitConverterDbContext context, IMapper mapper, ILogger<ConversionService> logger)
         {
             _context = context;
             _mapper = mapper;
@@ -20,12 +20,27 @@ namespace UnitConverterAppAPI.Services
         }
         public int Create(CreateConversionDto dto)
         {
+            var result = CountResult(dto.ConvertedValue, dto.OriginalUnitId, dto.TargetUnitId);
+            dto.ConversionResult = result;
             var conversionEntity = _mapper.Map<Conversion>(dto);
 
             _context.Conversions.Add(conversionEntity);
             _context.SaveChanges();
 
             return conversionEntity.Id;
+        }
+
+        private decimal CountResult(decimal convertedValue, int originalUnitId, int targetUnitId)
+        {
+            var originalUnit = _context.Units.FirstOrDefault(u => u.Id == originalUnitId);
+            var targetUnit = _context.Units.FirstOrDefault(u => u.Id == targetUnitId);
+            
+            if (originalUnit == null && targetUnit == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return (convertedValue * originalUnit.Factor) / targetUnit.Factor;
         }
 
         public ConversionDto GetById(int conversionId)
@@ -39,7 +54,7 @@ namespace UnitConverterAppAPI.Services
 
         public IEnumerable<ConversionDto> GetAll()
         {
-           var conversions = GetAllConversions();
+            var conversions = GetAllConversions();
 
             var conversionDtos = _mapper.Map<List<ConversionDto>>(conversions);
             return conversionDtos;
@@ -54,16 +69,16 @@ namespace UnitConverterAppAPI.Services
 
         }
 
-
         public void DeleteConversion(int id)
         {
             _logger.LogError($"Conversion with id: {id} DELETE action invoked");
             var conversion = GetConversion(id);
         }
+
         private IEnumerable<Conversion> GetAllConversions()
         {
             var conversions = _context.Conversions.Include(c => c.OriginalUnit).Include(c => c.TargetUnit).ToList();
-            
+
             if (conversions is null)
             {
                 throw new NotFoundException("Conversions not found");

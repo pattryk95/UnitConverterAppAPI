@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UnitConverterAppAPI.Models;
 using UnitConverterAppAPI.Services;
 
@@ -6,6 +7,7 @@ namespace UnitConverterAppAPI.Controllers
 {
     [Route("api/conversion")]
     [ApiController]
+    //[Authorize]
     public class ConversionController : ControllerBase
     {
         private readonly IConversionService _conversionService;
@@ -30,6 +32,7 @@ namespace UnitConverterAppAPI.Controllers
         }
 
         [HttpGet]
+        //[AllowAnonymous]
         public ActionResult<IEnumerable<ConversionDto>> GetAll()
         {
             var conversionDtos = _conversionService.GetAll();
@@ -43,7 +46,8 @@ namespace UnitConverterAppAPI.Controllers
             return NoContent();
         }
 
-        public ActionResult DeleteUnit([FromRoute] int id)
+        [HttpDelete]
+        public ActionResult DeleteConversion([FromRoute] int id)
         {
             _conversionService.DeleteConversion(id);
             return NoContent();
