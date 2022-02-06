@@ -63,6 +63,8 @@ namespace UnitConverterAppAPI
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
             services.AddSwaggerGen();
+            services.AddScoped<IUserContextService, UserContextService>();
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

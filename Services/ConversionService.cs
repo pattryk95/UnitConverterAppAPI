@@ -15,20 +15,27 @@ namespace UnitConverterAppAPI.Services
         private readonly IMapper _mapper;
         private readonly ILogger<ConversionService> _logger;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
-        public ConversionService(UnitConverterDbContext context, IMapper mapper, ILogger<ConversionService> logger, IAuthorizationService authorizationService)
+        public ConversionService(
+                                UnitConverterDbContext context, 
+                                IMapper mapper, 
+                                ILogger<ConversionService> logger, 
+                                IAuthorizationService authorizationService,
+                                IUserContextService userContextService)
         {
+            _userContextService = userContextService;
             _context = context;
             _mapper = mapper;
             _logger = logger;
             _authorizationService = authorizationService;
         }
-        public int Create(CreateConversionDto dto, int userId)
+        public int Create(CreateConversionDto dto)
         {
             var result = CountResult(dto.ConvertedValue, dto.OriginalUnitId, dto.TargetUnitId);
             dto.ConversionResult = result;
             var conversionEntity = _mapper.Map<Conversion>(dto);
-            conversionEntity.CreatedById = userId;
+            conversionEntity.CreatedById = _userContextService.GetUserId;
 
             _context.Conversions.Add(conversionEntity);
             _context.SaveChanges();
@@ -75,13 +82,13 @@ namespace UnitConverterAppAPI.Services
 
         }
 
-        public void DeleteConversion(int id, ClaimsPrincipal user)
+        public void DeleteConversion(int id)
         {
             _logger.LogError($"Conversion with id: {id} DELETE action invoked");
 
             var conversion = GetConversion(id);
 
-           var authorizationResult = _authorizationService.AuthorizeAsync(user, conversion,
+           var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, conversion,
                new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
             if (!authorizationResult.Succeeded)
             {

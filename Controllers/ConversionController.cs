@@ -21,8 +21,7 @@ namespace UnitConverterAppAPI.Controllers
         [HttpPost]
         public ActionResult CreateConversion([FromBody] CreateConversionDto dto)
         {
-           var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-           var newConversionId = _conversionService.Create(dto, userId);
+           var newConversionId = _conversionService.Create(dto);
 
             return Created($"api/conversion/{newConversionId}", null);
         }
