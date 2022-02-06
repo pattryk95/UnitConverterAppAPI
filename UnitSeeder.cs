@@ -2,11 +2,11 @@
 
 namespace UnitConverterAppAPI
 {
-    public class UnitSeeder
+    public class DataSeeder
     {
         private readonly UnitConverterDbContext _dbContext;
 
-        public UnitSeeder(UnitConverterDbContext _dbContext)
+        public DataSeeder(UnitConverterDbContext _dbContext)
         {
             this._dbContext = _dbContext;
         }

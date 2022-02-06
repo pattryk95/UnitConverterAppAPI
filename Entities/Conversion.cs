@@ -14,6 +14,8 @@ namespace UnitConverterAppAPI.Entities
         [Precision(38, 19)]
         public decimal ConversionResult { get; set; }
         public DateTime DateOfConversion { get; set; } = DateTime.Now;
+        public int? CreatedById { get; set; }
+        public virtual User CreatedBy { get; set; }
 
 
         [ForeignKey("OriginalUnit")]

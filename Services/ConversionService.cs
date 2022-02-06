@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using UnitConverterAppAPI.Authorization;
 using UnitConverterAppAPI.Entities;
 using UnitConverterAppAPI.Exceptions;
 using UnitConverterAppAPI.Models;
@@ -11,18 +14,21 @@ namespace UnitConverterAppAPI.Services
         private readonly UnitConverterDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<ConversionService> _logger;
+        private readonly IAuthorizationService _authorizationService;
 
-        public ConversionService(UnitConverterDbContext context, IMapper mapper, ILogger<ConversionService> logger)
+        public ConversionService(UnitConverterDbContext context, IMapper mapper, ILogger<ConversionService> logger, IAuthorizationService authorizationService)
         {
             _context = context;
             _mapper = mapper;
             _logger = logger;
+            _authorizationService = authorizationService;
         }
-        public int Create(CreateConversionDto dto)
+        public int Create(CreateConversionDto dto, int userId)
         {
             var result = CountResult(dto.ConvertedValue, dto.OriginalUnitId, dto.TargetUnitId);
             dto.ConversionResult = result;
             var conversionEntity = _mapper.Map<Conversion>(dto);
+            conversionEntity.CreatedById = userId;
 
             _context.Conversions.Add(conversionEntity);
             _context.SaveChanges();
@@ -69,10 +75,20 @@ namespace UnitConverterAppAPI.Services
 
         }
 
-        public void DeleteConversion(int id)
+        public void DeleteConversion(int id, ClaimsPrincipal user)
         {
             _logger.LogError($"Conversion with id: {id} DELETE action invoked");
+
             var conversion = GetConversion(id);
+
+           var authorizationResult = _authorizationService.AuthorizeAsync(user, conversion,
+               new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
+            }
+            _context.Conversions.Remove(conversion);
+            _context.SaveChanges();
         }
 
         private IEnumerable<Conversion> GetAllConversions()

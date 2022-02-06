@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UnitConverterAppAPI.Models;
 using UnitConverterAppAPI.Services;
 
@@ -16,10 +17,12 @@ namespace UnitConverterAppAPI.Controllers
         {
             _conversionService = conversionService;
         }
+
         [HttpPost]
-        public ActionResult Post([FromBody] CreateConversionDto dto)
+        public ActionResult CreateConversion([FromBody] CreateConversionDto dto)
         {
-           var newConversionId = _conversionService.Create(dto);
+           var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
+           var newConversionId = _conversionService.Create(dto, userId);
 
             return Created($"api/conversion/{newConversionId}", null);
         }
@@ -40,6 +43,7 @@ namespace UnitConverterAppAPI.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "Admmin")]
         public ActionResult DeleteConversions()
         {
             _conversionService.RemoveAll();

@@ -9,6 +9,9 @@ using FluentValidation.AspNetCore;
 using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using UnitConverterAppAPI.Authorization;
 
 namespace UnitConverterAppAPI
 {
@@ -46,10 +49,11 @@ namespace UnitConverterAppAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
                 };
             });
-            
+
+            services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
             services.AddControllers().AddFluentValidation();
             services.AddDbContext<UnitConverterDbContext>();
-            services.AddScoped<UnitSeeder>();
+            services.AddScoped<DataSeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IUnitService, UnitService>();
             services.AddScoped<IConversionService, ConversionService>();
@@ -62,7 +66,7 @@ namespace UnitConverterAppAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UnitSeeder seeder)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataSeeder seeder)
         {
 
             seeder.Seed();

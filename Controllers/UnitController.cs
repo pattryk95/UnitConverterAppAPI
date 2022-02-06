@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UnitConverterAppAPI.Entities;
 using UnitConverterAppAPI.Models;
@@ -8,6 +9,7 @@ namespace UnitConverterAppAPI.Controllers
 {
     [Route("api/unit")]
     [ApiController] // automatically invoke ModelState.IsValid
+    [Authorize(Roles = "Admmin")] //[Authorize] || [Authorize(Roles = "Admmin, Manager")] on Controller for all actions or for particular actions
     public class UnitController : ControllerBase
     {
         private readonly IUnitService _unitService;
@@ -18,6 +20,7 @@ namespace UnitConverterAppAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult<IEnumerable<UnitDto>> GetAll()
         {
             var unitsDtos = _unitService.GetAll();
@@ -26,6 +29,7 @@ namespace UnitConverterAppAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public ActionResult<Unit> Get([FromRoute] int id)
         {
             var unitDto = _unitService.GetById(id);
@@ -34,6 +38,7 @@ namespace UnitConverterAppAPI.Controllers
         }
 
         [HttpPost]
+       // [Authorize(Roles = "Admmin")]
         public ActionResult AddNewUnit([FromBody] CreateUnitDto dto)
         {
             var id = _unitService.Create(dto);

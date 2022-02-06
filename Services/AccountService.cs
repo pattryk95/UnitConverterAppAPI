@@ -25,7 +25,7 @@ namespace UnitConverterAppAPI.Services
 
         public string GenerateJwt(LoginDto dto)
         {
-            var user = _context.Users.Include(user=>user.Role).FirstOrDefault(u=> u.Email == dto.Email);
+            var user = _context.Users.Include(user => user.Role).FirstOrDefault(u => u.Email == dto.Email);
             if (user == null)
             {
                 throw new BadRequestException("Invalid username or password");
@@ -41,7 +41,7 @@ namespace UnitConverterAppAPI.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
+                new Claim(ClaimTypes.Role, $"{user.Role.Name}"), // to read role on [Authorize] attribute
                 new Claim("NickName", $"{user.NickName}"),
             };
 
@@ -50,9 +50,9 @@ namespace UnitConverterAppAPI.Services
             var expires = DateTime.Now.AddDays(_authenticationSettings.JwtExpireDays);
 
             var token = new JwtSecurityToken(_authenticationSettings.JwtIssuer,
-                _authenticationSettings.JwtIssuer, 
-                claims, 
-                expires: expires, 
+                _authenticationSettings.JwtIssuer,
+                claims,
+                expires: expires,
                 signingCredentials: cred);
 
             var tokenHandler = new JwtSecurityTokenHandler();
