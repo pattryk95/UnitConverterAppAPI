@@ -100,7 +100,10 @@ namespace UnitConverterAppAPI.Services
 
         private IEnumerable<Conversion> GetAllConversions()
         {
-            var conversions = _context.Conversions.Include(c => c.OriginalUnit).Include(c => c.TargetUnit).ToList();
+            var conversions = _context.Conversions
+                .Include(c => c.OriginalUnit)
+                .Include(c => c.TargetUnit)
+                .ToList();
 
             if (conversions is null)
             {

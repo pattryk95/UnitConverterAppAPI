@@ -62,6 +62,7 @@ namespace UnitConverterAppAPI
             services.AddScoped<RequestTimeMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+            services.AddScoped<IValidator<UnitQuery>, UnitQueryValidator>();
             services.AddSwaggerGen();
             services.AddScoped<IUserContextService, UserContextService>();
             services.AddHttpContextAccessor();

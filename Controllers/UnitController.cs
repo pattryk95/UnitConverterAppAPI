@@ -21,9 +21,9 @@ namespace UnitConverterAppAPI.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<IEnumerable<UnitDto>> GetAll()
+        public ActionResult<IEnumerable<UnitDto>> GetAll([FromQuery] UnitQuery query)
         {
-            var unitsDtos = _unitService.GetAll();
+            var unitsDtos = _unitService.GetAll(query);
 
             return Ok(unitsDtos);
         }

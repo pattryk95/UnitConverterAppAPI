@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using System.Linq;
+using System.Linq.Expressions;
 using UnitConverterAppAPI.Entities;
 using UnitConverterAppAPI.Exceptions;
 using UnitConverterAppAPI.Models;
@@ -25,12 +27,37 @@ namespace UnitConverterAppAPI.Services
             return result;
         }
 
-        public IEnumerable<UnitDto> GetAll()
+        public PageResult<UnitDto> GetAll(UnitQuery query)
         {
-            var units = _dbContext.Units.ToList();
+            var baseQuery = _dbContext
+                .Units
+                .Where(u => query.SearchPhrase == null || (u.Name.ToLower().Contains(query.SearchPhrase.ToLower())));
+
+
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                var columnsSelectors = new Dictionary<string, Expression<Func<Unit, object>>>
+                {
+                    {nameof(Unit.Name), u => u.Name}
+                };
+
+                var selectedColumn = columnsSelectors[query.SortBy];
+
+                baseQuery = query.SortDirection == SortDirection.ASC ? baseQuery.OrderBy(selectedColumn) : baseQuery.OrderByDescending(selectedColumn);
+            }
+
+            var units = baseQuery
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var totalItemsCount = baseQuery.Count();
 
             var unitDtos = _mapper.Map<List<UnitDto>>(units);
-            return unitDtos;
+
+            var result = new PageResult<UnitDto>(unitDtos, totalItemsCount, query.PageSize, query.PageNumber);
+
+            return result;
         }
 
         public int Create(CreateUnitDto dto)
@@ -63,7 +90,7 @@ namespace UnitConverterAppAPI.Services
 
         }
 
-        private Unit GetUnit (int id)
+        private Unit GetUnit(int id)
         {
             var unit = _dbContext.Units.FirstOrDefault(x => x.Id == id);
             if (unit is null)

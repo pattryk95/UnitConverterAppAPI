@@ -7,7 +7,7 @@ namespace UnitConverterAppAPI.Services
         int Create(CreateUnitDto dto);
         void Delete(int id);
         void Edit(int id, UpdateUnitDto dto);
-        IEnumerable<UnitDto> GetAll();
+        PageResult<UnitDto> GetAll(UnitQuery query);
         UnitDto GetById(int id);
     }
 }
