@@ -66,12 +66,20 @@ namespace UnitConverterAppAPI
             services.AddSwaggerGen();
             services.AddScoped<IUserContextService, UserContextService>();
             services.AddHttpContextAccessor();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("FrontEndClient", bulder => 
+                    bulder.AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .WithOrigins(Configuration["AllowedOrigins"])
+                );
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataSeeder seeder)
         {
-
+            app.UseCors("FrontEndClient");
             seeder.Seed();
            /* if (env.IsDevelopment())
             {
